@@ -20,7 +20,7 @@ BOLD = "\033[1m"
 BLUE = "\033[36m"
 PURPLE = "\033[94m"
 MAGENTA = "\033[35m"
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 DEBUG_MODE = True
 
 print("%s\n----------------\n MineSweeperBot\n     v%s\n----------------%s"%(BOLD,VERSION,DEF))
@@ -28,6 +28,7 @@ print("%s\n----------------\n MineSweeperBot\n     v%s\n----------------%s"%(BOL
 board_rows = 0
 board_columns = 0
 zero_tiles = []
+took_action = False
 
 def debug(string,c=DEF):
     if ("--debug" in sys.argv or DEBUG_MODE):
@@ -118,6 +119,7 @@ def get_opened_tiles(tiles): # get all the opened tiles and return as list of [ 
     return opened_tiles
 
 def clear_tile(x,y,num):
+    global took_action
     # Sort the surrounding tiles
     tile_breakdown = {
         "unopened":[],
@@ -139,13 +141,16 @@ def clear_tile(x,y,num):
             tile_info = selenium_to_info(tile)
             flag_tile(tile_info[0],tile_info[1])
             debug("flagged mine at (%s,%s)"%(tile_info[0],tile_info[1]),c=RED)
-    elif (len(tile_breakdown.get("flagged")) == num and num != 0 and len(tile_breakdown.get("unopened")) > 0):
+            took_action = True
+    if (len(tile_breakdown.get("flagged")) == num and num != 0 and len(tile_breakdown.get("unopened")) > 0):
         for i in range(len(tile_breakdown.get("unopened"))):
             tile = tile_breakdown.get("unopened")[i]
             tile_info = selenium_to_info(tile)
             tile.click()
             debug("cleared space at (%s,%s)"%(tile_info[0],tile_info[1]),c=GREEN)
+            took_action = True
     debug("Finished Evaluating tile: (%s,%s)\n"%(x,y),c=PURPLE)
+    return took_action
 
 def guess_click(rows,columns,advanced=False): # randomly clicks a tile
     debug("guessing click...",c=YELLOW)
@@ -163,10 +168,15 @@ def won_game():
     return False
 
 def sweep_those_mf_mines():
+    global took_action
     all_tiles = get_all_tiles()
     opened_tiles = get_opened_tiles(all_tiles)
+    action = False
+    took_action = False
     for i in range(len(opened_tiles)):
-        clear_tile(opened_tiles[i][0],opened_tiles[i][1],opened_tiles[i][2])
+        action = clear_tile(opened_tiles[i][0],opened_tiles[i][1],opened_tiles[i][2])
+    if (not action):
+        guess_click(board_rows,board_columns)
     if (not won_game()):
         sweep_those_mf_mines()
 
