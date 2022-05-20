@@ -20,7 +20,7 @@ BOLD = "\033[1m"
 BLUE = "\033[36m"
 PURPLE = "\033[94m"
 MAGENTA = "\033[35m"
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 DEBUG_MODE = True
 
 print("%s\n----------------\n MineSweeperBot\n     v%s\n----------------%s"%(BOLD,VERSION,DEF))
@@ -113,7 +113,11 @@ def get_opened_tiles(tiles): # get all the opened tiles and return as list of [ 
     for y,list_of_tiles in tiles.items():
         for tile in list_of_tiles:
             x = list(tile.keys())[0]
-            num = int(list(tile.values())[0])
+            try:
+                num = int(list(tile.values())[0])
+            except ValueError:
+                debug("Damn- Hit a Mine. Game Over.",c=BOLD+RED)
+                quit()
             if (num != 0):
                 opened_tiles.append( (x,y,num) )
     return opened_tiles
