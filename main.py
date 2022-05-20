@@ -20,7 +20,7 @@ BOLD = "\033[1m"
 BLUE = "\033[36m"
 PURPLE = "\033[94m"
 MAGENTA = "\033[35m"
-VERSION = "1.0.2"
+VERSION = "1.1.0"
 DEBUG_MODE = True
 
 print("%s\n----------------\n MineSweeperBot\n     v%s\n----------------%s"%(BOLD,VERSION,DEF))
@@ -152,6 +152,7 @@ def clear_tile(x,y,num):
             tile_info = selenium_to_info(tile)
             tile.click()
             debug("cleared space at (%s,%s)"%(tile_info[0],tile_info[1]),c=GREEN)
+            clear_tile(int(tile_info[0]),int(tile_info[1]),int(list(tile.get_attribute("class")[-1])[-1]))
             took_action = True
     debug("Finished Evaluating tile: (%s,%s)\n"%(x,y),c=PURPLE)
     return took_action
